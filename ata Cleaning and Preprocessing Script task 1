@@ -1,0 +1,86 @@
+# --------------------------------------------
+# DATA ANALYST INTERNSHIP - TASK 1
+# Data Cleaning and Preprocessing Script
+# --------------------------------------------
+
+# Import required libraries
+import pandas as pd
+
+# ===============================
+# STEP 1: LOAD THE RAW DATA
+# ===============================
+# Replace 'raw_data.csv' with your dataset name
+df = pd.read_csv('raw_data.csv')
+
+print("🔹 Original Data Preview:")
+print(df.head())
+print("\nTotal Rows:", len(df))
+
+# ===============================
+# STEP 2: CHECK & HANDLE MISSING VALUES
+# ===============================
+print("\n🔍 Checking Missing Values:")
+print(df.isnull().sum())
+
+# Option 1: Drop rows with missing values
+# df = df.dropna()
+
+# Option 2: Fill missing values with defaults
+df['Age'] = df['Age'].fillna(df['Age'].median()) if 'Age' in df.columns else None
+df = df.fillna("Unknown")  # Fill other missing text fields
+
+# ===============================
+# STEP 3: REMOVE DUPLICATES
+# ===============================
+before = len(df)
+df = df.drop_duplicates()
+after = len(df)
+print(f"\n✅ Removed {before - after} duplicate rows")
+
+# ===============================
+# STEP 4: STANDARDIZE TEXT VALUES
+# ===============================
+if 'Gender' in df.columns:
+    df['Gender'] = df['Gender'].str.strip().str.lower().replace({
+        'male': 'Male', 'm': 'Male',
+        'female': 'Female', 'f': 'Female'
+    })
+
+if 'Country' in df.columns:
+    df['Country'] = df['Country'].str.title().str.strip()
+
+# ===============================
+# STEP 5: FIX DATE FORMATS
+# ===============================
+if 'Date' in df.columns:
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce', dayfirst=True)
+
+# ===============================
+# STEP 6: RENAME COLUMNS
+# ===============================
+df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
+
+# ===============================
+# STEP 7: FIX DATA TYPES
+# ===============================
+if 'age' in df.columns:
+    df['age'] = pd.to_numeric(df['age'], errors='coerce').astype('Int64')
+
+# ===============================
+# STEP 8: SAVE THE CLEANED DATA
+# ===============================
+df.to_csv('cleaned_data.csv', index=False)
+print("\n💾 Cleaned data saved as 'cleaned_data.csv'")
+
+# ===============================
+# STEP 9: SUMMARY OF CHANGES
+# ===============================
+print("\n📊 Summary of Cleaning:")
+print("- Missing values handled (filled or dropped)")
+print("- Duplicates removed")
+print("- Text standardized (gender, country, etc.)")
+print("- Date formats converted")
+print("- Column names cleaned")
+print("- Data types fixed\n")
+
+print("✅ Data Cleaning Completed Successfully!")
